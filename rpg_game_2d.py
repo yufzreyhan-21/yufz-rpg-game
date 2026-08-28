@@ -263,6 +263,8 @@ class Game:
             self.check_collision()
     
     def check_collision(self):
+        if not self.player:
+            return
         for enemy in self.enemies:
             distance = enemy.distance_to(self.player.x, self.player.y)
             if distance < 30:
@@ -283,6 +285,7 @@ class Game:
             self.spawn_enemy()
     
     def start_game(self):
+        self.ui.clear()
         self.player = Player("Hero", 0, 0)
         self.state = GameState.PLAYING
         self.spawn_enemies()
@@ -303,7 +306,7 @@ class Game:
             self.enemies.append(Enemy(enemy_name, x, y))
     
     def do_battle_action(self, action):
-        if self.state != GameState.BATTLE:
+        if self.state != GameState.BATTLE or not self.player or not self.current_enemy:
             return
         
         if action == "attack":
@@ -345,6 +348,10 @@ class Game:
     def draw_hud(self):
         self.ui.clear()
         
+        # Only draw HUD if player exists
+        if not self.player:
+            return
+        
         # Player Info
         self.ui.draw_text(-SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT/2 - 40, f"Level: {self.player.level}", 12, Color.CYAN)
         self.ui.draw_text(-SCREEN_WIDTH/2 + 20, SCREEN_HEIGHT/2 - 80, f"Gold: {self.player.gold}", 12, Color.YELLOW)
@@ -361,7 +368,7 @@ class Game:
             self.ui.draw_text(SCREEN_WIDTH/2 - 250, SCREEN_HEIGHT/2 - 120, "Press SPACE to Attack", 12, Color.YELLOW)
     
     def update(self):
-        if self.state == GameState.PLAYING:
+        if self.state == GameState.PLAYING and self.player:
             for enemy in self.enemies:
                 enemy.move()
         
@@ -371,7 +378,6 @@ class Game:
     def run(self):
         while True:
             self.update()
-            self.screen.update()
 
 # ===== MAIN =====
 if __name__ == "__main__":
